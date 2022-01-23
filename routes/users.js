@@ -35,8 +35,9 @@ usersRouter.post("/", (req, res) => {
       if (validationErrors) return Promise.reject("INVALID_DATA");
       return User.hashPassword(req.body.password);
     })
-    .then((hashed) => {
-      req.body.password = hashed;
+    .then((hashedPassword) => {
+      req.body.hashedPassword = hashedPassword;
+      delete req.body.password;
       return User.create(req.body).then((createdUser) => {
         res.status(201).json(createdUser);
       });

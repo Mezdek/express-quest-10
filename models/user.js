@@ -17,22 +17,23 @@ const validate = (data, forCreation = true) => {
 };
 
 const findMany = ({ filters: { language } }) => {
-  let sql = "SELECT * FROM users";
+  let sql = "SELECT id, email, firstname, lastname, city, language FROM users";
   const sqlValues = [];
   if (language) {
     sql += " WHERE language = ?";
     sqlValues.push(language);
   }
 
-  return db.query(sql, sqlValues).then(([results]) => {
-    return results.map((user) => ({ ...user, password: "********" }));
-  });
+  return db.query(sql, sqlValues).then(([results]) => results);
 };
 
 const findOne = (id) => {
   return db
-    .query("SELECT * FROM users WHERE id = ?", [id])
-    .then(([results]) => ({...results[0], password: "********"}));
+    .query(
+      "SELECT id, email, firstname, lastname, city, language FROM users WHERE id = ?",
+      [id]
+    )
+    .then(([results]) => results[0]);
 };
 
 const findByEmail = (email) => {
@@ -48,10 +49,10 @@ const findByEmailWithDifferentId = (email, id) => {
 };
 
 const create = (data) => {
-  return db.query("INSERT INTO users SET ?", data).then(([result]) => {
-    const id = result.insertId;
-    data.password = "********";
-    return { ...data, id };
+  return db.query("INSERT INTO users SET ?", data).then(([res]) => {
+    const id = res.insertId;
+    const { hashedPassword, ...result } = data;
+    return {id, ...result};
   });
 };
 
